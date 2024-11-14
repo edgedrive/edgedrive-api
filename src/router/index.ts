@@ -1,10 +1,12 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import { version } from "../../package.json";
+import systemApp from "../endpoints/system";
 
 const app = new OpenAPIHono();
 
 app.get("/ping", (c) => c.text("pong"));
+app.route("/v1/system", systemApp);
 
 // The OpenAPI documentation will be available at /openapi.json
 app.doc("/openapi.json", {
