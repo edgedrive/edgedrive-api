@@ -1,8 +1,8 @@
 import type { S3Config } from "./config";
 import { AwsClient } from "aws4fetch";
-import type { EdgeDriveFile } from "../../types/file";
+import { EdgeDriveFile } from "../../types/file";
 
-export class S3File implements EdgeDriveFile {
+export class S3File extends EdgeDriveFile {
   readonly objectKey: string;
   readonly start: number | undefined = undefined;
   readonly end: number | undefined = undefined;
@@ -17,6 +17,7 @@ export class S3File implements EdgeDriveFile {
     end?: number;
     metadata?: S3FileMetadata;
   }) {
+    super();
     this.objectKey = options.objectKey;
     this.config = options.config;
     this.start = options?.start;
@@ -24,7 +25,7 @@ export class S3File implements EdgeDriveFile {
     this.metadata = options?.metadata;
   }
 
-  async getMetadata(): Promise<S3FileMetadata> {
+  private async getMetadata(): Promise<S3FileMetadata> {
     if (this.metadata) {
       return this.metadata;
     }
@@ -83,28 +84,6 @@ export class S3File implements EdgeDriveFile {
     });
   }
 
-  async arrayBuffer(): Promise<ArrayBuffer> {
-    const stream = await this.stream();
-    const response = await new Response(stream).arrayBuffer();
-    return response;
-  }
-
-  async bytes(): Promise<Uint8Array> {
-    const arrayBuffer = await this.arrayBuffer();
-    return new Uint8Array(arrayBuffer);
-  }
-
-  async text(): Promise<string> {
-    const bytes = await this.bytes();
-    return new TextDecoder().decode(bytes);
-  }
-
-  async blob(): Promise<Blob> {
-    const buffer = await this.arrayBuffer();
-    const type = await this.type();
-    return new Blob([buffer], { type });
-  }
-
   async stream(): Promise<ReadableStream> {
     const controller = new AbortController();
     try {
@@ -144,6 +123,9 @@ export class S3File implements EdgeDriveFile {
         throw new Error("Response body is null");
       }
 
+      const metadata = parseMetadata(response);
+      this.metadata = metadata;
+
       return response.body;
     } catch (error) {
       controller.abort();
@@ -172,19 +154,8 @@ async function getMetadata(
 
   const signedRequest = await client.sign(request);
   const response = await fetch(signedRequest);
-  const size = parseInt(response.headers.get("Content-Length") ?? "0");
-  const type =
-    response.headers.get("Content-Type") ?? "application/octet-stream";
-  const lastModifiedString = response.headers.get("Last-Modified");
-  const lastModified = lastModifiedString
-    ? new Date(lastModifiedString).getTime()
-    : 0;
 
-  return {
-    size,
-    type,
-    lastModified,
-  };
+  return parseMetadata(response);
 }
 
 export interface S3FileMetadata {
@@ -195,4 +166,20 @@ export interface S3FileMetadata {
 
 export function getObjectURL(objectKey: string, config: S3Config): URL {
   return new URL(`${config.endpoint}/${config.bucket}/${objectKey}`);
+}
+
+
+export function parseMetadata(response: Response): S3FileMetadata {
+  const size = parseInt(response.headers.get("Content-Length") ?? "0");
+  const type = response.headers.get("Content-Type") ?? "application/octet-stream";
+  const lastModifiedString = response.headers.get("Last-Modified");
+  const lastModified = lastModifiedString
+    ? new Date(lastModifiedString).getTime()
+    : 0;
+
+  return {
+    size,
+    type,
+    lastModified,
+  };
 }
