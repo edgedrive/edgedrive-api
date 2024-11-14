@@ -9,6 +9,7 @@
     "deploy:workers:dry-run": "wrangler deploy --dry-run",
     "dev:workers": "wrangler dev",
     "test:workers": "vitest --config vitest.workers.config.ts",
+    "test:node": "vitest --config vitest.node.config.ts",
     "test": "vitest",
     "type-check": "tsc --noEmit",
     "lint": "eslint --fix .",
