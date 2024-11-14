@@ -13,3 +13,11 @@ export class NotFoundError extends Error {
     super(`Not found ${path}`);
   }
 }
+
+export class TypeMismatchError extends Error {
+  readonly name = "TypeMismatchError";
+
+  constructor(path: string) {
+    super(`Type mismatch ${path}`);
+  }
+}
