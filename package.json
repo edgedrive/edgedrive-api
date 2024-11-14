@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "deploy:workers": "wrangler deploy",
     "deploy:workers:dry-run": "wrangler deploy --dry-run",
     "dev:workers": "wrangler dev",
     "test:workers": "vitest --config vitest.workers.config.ts",
+    "test": "vitest",
     "type-check": "tsc --noEmit",
     "lint": "eslint --fix .",
     "lint-check": "eslint . --no-fix",
