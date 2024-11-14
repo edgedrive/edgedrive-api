@@ -33,7 +33,7 @@ app.doc("/openapi.json", {
 
 app.get(
   "/docs",
-  swaggerUI({ url: "/openapi.json", persistAuthorization: true })
+  swaggerUI({ url: "/openapi.json", persistAuthorization: true }),
 );
 
 // Export the Hono app
