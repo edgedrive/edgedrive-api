@@ -6,3 +6,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 RUNTIME = "cloudflare-workers"
+
+[[d1_databases]]
+binding = "DATABASE"
+database_name = "edgedrive"
+database_id = "ed4278d8-0f43-4435-af68-ed847d07fd18"
