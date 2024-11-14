@@ -25,7 +25,7 @@ export class S3File extends EdgeDriveFile {
     this.metadata = options?.metadata;
   }
 
-  private async getMetadata(): Promise<S3FileMetadata> {
+  async getMetadata(): Promise<S3FileMetadata> {
     if (this.metadata) {
       return this.metadata;
     }
